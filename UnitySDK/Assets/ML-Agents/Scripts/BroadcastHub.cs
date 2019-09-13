@@ -8,6 +8,9 @@ namespace MLAgents
     /// remotely controlled.
     /// </summary>
     [System.Serializable]
+
+    // 就是简单的
+    // Brain的列表
     public class BroadcastHub
     {
         [SerializeField]

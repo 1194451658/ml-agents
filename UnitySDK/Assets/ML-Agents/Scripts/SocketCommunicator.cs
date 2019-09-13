@@ -16,11 +16,16 @@ namespace MLAgents
         private const int MessageLength = 12000;
         byte[] m_messageHolder = new byte[MessageLength];
         int m_comPort;
+
+        // 套接字
         Socket m_sender;
         byte[] m_lengthHolder = new byte[4];
+
+        // 只有一个port参数
+        // Unity要连接的，本地端口号
         CommunicatorParameters communicatorParameters;
 
-
+        // 构造函数
         public SocketCommunicator(CommunicatorParameters communicatorParameters)
         {
             this.communicatorParameters = communicatorParameters;
@@ -33,18 +38,16 @@ namespace MLAgents
         /// <returns>The first Unity Input.</returns>
         /// <param name="unityOutput">The first Unity Output.</param>
         /// <param name="unityInput">The second Unity input.</param>
-        public UnityInput Initialize(UnityOutput unityOutput,
-                                     out UnityInput unityInput)
-        {
 
-            m_sender = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Stream,
-                ProtocolType.Tcp);
+        // 初始化
+        public UnityInput Initialize(UnityOutput unityOutput, out UnityInput unityInput)
+        {
+            // 创建套接字
+            m_sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            // 连接本地端口
             m_sender.Connect("localhost", communicatorParameters.port);
 
-            UnityMessage initializationInput =
-                UnityMessage.Parser.ParseFrom(Receive());
+            UnityMessage initializationInput = UnityMessage.Parser.ParseFrom(Receive());
 
             Send(WrapMessage(unityOutput, 200).ToByteArray());
 
@@ -74,8 +77,7 @@ namespace MLAgents
             while (location != totalLength)
             {
                 int fragment = m_sender.Receive(m_messageHolder);
-                System.Buffer.BlockCopy(
-                    m_messageHolder, 0, result, location, fragment);
+                System.Buffer.BlockCopy(m_messageHolder, 0, result, location, fragment);
                 location += fragment;
             }
             return result;

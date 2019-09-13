@@ -61,8 +61,11 @@ namespace MLAgents
         /// Target frame rate (per second) that the engine tries to maintain.
         /// </param>
         public EnvironmentConfiguration(
-            int width, int height, int qualityLevel,
-            float timeScale, int targetFrameRate)
+            int width, 
+            int height,
+            int qualityLevel,
+            float timeScale,
+            int targetFrameRate)
         {
             this.width = width;
             this.height = height;
@@ -93,6 +96,7 @@ namespace MLAgents
     public abstract class Academy : MonoBehaviour
     {
         [SerializeField]
+        // 简单的Brain的列表
         public BroadcastHub broadcastHub = new BroadcastHub();
 
         private const string kApiVersion = "API-9";
@@ -121,14 +125,12 @@ namespace MLAgents
         [SerializeField]
         [Tooltip("The engine-level settings which correspond to rendering " +
                  "quality and engine speed during Training.")]
-        EnvironmentConfiguration trainingConfiguration =
-            new EnvironmentConfiguration(80, 80, 1, 100.0f, -1);
+        EnvironmentConfiguration trainingConfiguration = new EnvironmentConfiguration(80, 80, 1, 100.0f, -1);
 
         [SerializeField]
         [Tooltip("The engine-level settings which correspond to rendering " +
                  "quality and engine speed during Inference.")]
-        EnvironmentConfiguration inferenceConfiguration =
-            new EnvironmentConfiguration(1280, 720, 5, 1.0f, 60);
+        EnvironmentConfiguration inferenceConfiguration = new EnvironmentConfiguration(1280, 720, 5, 1.0f, 60);
 
         /// <summary>
         /// Contains a mapping from parameter names to float values. They are
@@ -143,7 +145,13 @@ namespace MLAgents
         [SerializeField]
         [Tooltip("List of custom parameters that can be changed in the " +
                  "environment when it resets.")]
+
+        // 实现了，序列化的
+        // Dictionary<string, float>
         public ResetParameters resetParameters;
+       
+        // 没有在Inspector中显示？！
+        // 对应的Proto文件，里边是空的
         public CommunicatorObjects.CustomResetParameters customResetParameters;
 
         // Fields not provided in the Inspector.
@@ -151,6 +159,8 @@ namespace MLAgents
         /// Boolean flag indicating whether a communicator is accessible by the
         /// environment. This also specifies whether the environment is in
         /// Training or Inference mode.
+        // 是否有communicator
+        // 是否在训练模式、还是、推断模式
         bool isCommunicatorOn;
 
         /// Keeps track of the id of the last communicator message received.
@@ -189,12 +199,16 @@ namespace MLAgents
         /// Flag that indicates whether the inference/training mode of the
         /// environment was switched by the external Brain. This impacts the
         /// engine settings at the next environment step.
+
+        // 是一个触发标记（检测到，会进行对应设置，并将此标记重置）
         bool modeSwitched;
 
         /// Pointer to the batcher currently in use by the Academy.
+        // 和RL算法相关的结构
         MLAgents.Batcher brainBatcher;
 
         /// Used to write error messages.
+        // System.IO空间中
         StreamWriter logWriter;
 
         /// The path to where the log should be written.
@@ -250,6 +264,8 @@ namespace MLAgents
             InitializeEnvironment();
         }
 
+        // 从命令行参数中
+        // 读取到--port参数
         // Used to read Python-provided environment parameters
         private int ReadArgs()
         {
@@ -269,18 +285,32 @@ namespace MLAgents
         /// <summary>
         /// Initializes the environment, configures it and initialized the Academy.
         /// </summary>
+
+        // 初始化
         private void InitializeEnvironment()
         {
+            // 保存旧值
             originalGravity = Physics.gravity;
             originalFixedDeltaTime = Time.fixedDeltaTime;
             originalMaximumDeltaTime = Time.maximumDeltaTime;
 
+            // 调用虚函数
+            // InitializeAcademy()
             InitializeAcademy();
+
             Communicator communicator = null;
 
+            // BroadcastHub: 简单的Brain的列表
+
+            // 获取所有的Brain
             var exposedBrains = broadcastHub.broadcastingBrains.Where(x => x != null).ToList();;
+
+            // 获取受控制的LearningBrain
             var controlledBrains = broadcastHub.broadcastingBrains.Where(
-                x => x != null && x is LearningBrain && broadcastHub.IsControlled(x));
+                x => x != null && x is LearningBrain && broadcastHub.IsControlled(x)
+            );
+
+            // 设置Brain是Controlled
             foreach (LearningBrain brain in controlledBrains)
             {
                 brain.SetToControlledExternally();
@@ -292,6 +322,7 @@ namespace MLAgents
                 communicator = new RPCCommunicator(
                     new CommunicatorParameters
                     {
+                        // 从命令行，读取要连接的端口号
                         port = ReadArgs()
                     });
             }
@@ -302,6 +333,10 @@ namespace MLAgents
             catch
             {
                 communicator = null;
+
+                // 如果有，需要控制的LearningBrain
+                // 则表示，需要TensorFlow
+                // 所以，尝试连接默认端口
                 if (controlledBrains.ToList().Count > 0)
                 {
                     communicator = new RPCCommunicator(
@@ -312,8 +347,10 @@ namespace MLAgents
                 }
             }
 
+            // 创建Batcher
             brainBatcher = new Batcher(communicator);
 
+            // Brain设置Batcher
             foreach (var trainingBrain in exposedBrains)
             {
                 trainingBrain.SetBatcher(brainBatcher);
@@ -323,28 +360,37 @@ namespace MLAgents
             {
                 isCommunicatorOn = true;
 
-                var academyParameters =
-                    new CommunicatorObjects.UnityRLInitializationOutput();
+                // 创建UnityRLInitializationOutput消息
+                var academyParameters = new CommunicatorObjects.UnityRLInitializationOutput();
                 academyParameters.Name = gameObject.name;
                 academyParameters.Version = kApiVersion;
+
+                // 从需要控制的Brain中
+                // 获取BrainParameters
+                // 填写到消息中
                 foreach (var brain in exposedBrains)
                 {
                     var bp = brain.brainParameters;
-                    academyParameters.BrainParameters.Add(
-                        bp.ToProto(brain.name, broadcastHub.IsControlled(brain)));
-                }
-                academyParameters.EnvironmentParameters =
-                    new CommunicatorObjects.EnvironmentParametersProto();
-                foreach (var key in resetParameters.Keys)
-                {
-                    academyParameters.EnvironmentParameters.FloatParameters.Add(
-                        key, resetParameters[key]
-                    );
+                    academyParameters.BrainParameters.Add(bp.ToProto(brain.name, broadcastHub.IsControlled(brain)));
                 }
 
+                // 填写EnvironmentParameters
+                academyParameters.EnvironmentParameters = new CommunicatorObjects.EnvironmentParametersProto();
+                foreach (var key in resetParameters.Keys)
+                {
+                    academyParameters.EnvironmentParameters.FloatParameters.Add( key, resetParameters[key]);
+                }
+
+                // Q: 通过Batcher发送消息？
                 var pythonParameters = brainBatcher.SendAcademyParameters(academyParameters);
+
                 Random.InitState(pythonParameters.Seed);
+
+                // 监听Unity消息
                 Application.logMessageReceived += HandleLog;
+
+                // 写入日志
+                // 当前开始时间
                 logPath = Path.GetFullPath(".") + "/UnitySDK.log";
                 using (var fs = File.Open(logPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
                 {
@@ -374,6 +420,8 @@ namespace MLAgents
             ConfigureEnvironment();
         }
 
+        // 从BrainBatcher中
+        // 设置resetParameters和customResetParameters
         private void UpdateResetParameters()
         {
             var newResetParameters = brainBatcher.GetEnvironmentParameters();
@@ -403,6 +451,9 @@ namespace MLAgents
         /// Configures the environment settings depending on the training/inference
         /// mode and the corresponding parameters passed in the Editor.
         /// </summary>
+
+        // 根据设置
+        // 设置对应的，训练环境，和推断环境
         void ConfigureEnvironment()
         {
             if (isInference)
@@ -424,12 +475,19 @@ namespace MLAgents
         /// <param name="config">
         /// Environment configuration (specified in the Editor).
         /// </param>
+
+        // 根据配置，进行设置
         static void ConfigureEnvironmentHelper(EnvironmentConfiguration config)
         {
+            // 设置屏幕宽高
             Screen.SetResolution(config.width, config.height, false);
+            // 设置渲染质量
             QualitySettings.SetQualityLevel(config.qualityLevel, true);
+
+            // 设置时间缩放
             Time.timeScale = config.timeScale;
             Time.captureFramerate = 60;
+            // 设置目标帧率
             Application.targetFrameRate = config.targetFrameRate;
         }
 
@@ -568,8 +626,12 @@ namespace MLAgents
         /// Performs a single environment update to the Academy, Brain and Agent
         /// objects within the environment.
         /// </summary>
+
+        // FixedUpdate()函数中调用
         void EnvironmentStep()
         {
+            // 是否
+            // 切换，推断环境，训练环境
             if (modeSwitched)
             {
                 ConfigureEnvironment();
@@ -580,9 +642,12 @@ namespace MLAgents
                 (lastCommunicatorMessageNumber != brainBatcher.GetNumberMessageReceived()))
             {
                 lastCommunicatorMessageNumber = brainBatcher.GetNumberMessageReceived();
-                if (brainBatcher.GetCommand() ==
-                    CommunicatorObjects.CommandProto.Reset)
+
+                // 收到Reset命令？
+                if (brainBatcher.GetCommand() == CommunicatorObjects.CommandProto.Reset)
                 {
+                    // 从BrainBatcher中
+                    // 设置resetParameters和customResetParameters
                     UpdateResetParameters();
 
                     SetIsInference(!brainBatcher.GetIsTraining());
@@ -590,8 +655,8 @@ namespace MLAgents
                     ForcedFullReset();
                 }
 
-                if (brainBatcher.GetCommand() ==
-                    CommunicatorObjects.CommandProto.Quit)
+                // 收到Quit命令
+                if (brainBatcher.GetCommand() == CommunicatorObjects.CommandProto.Quit)
                 {
 #if UNITY_EDITOR
                     EditorApplication.isPlaying = false;

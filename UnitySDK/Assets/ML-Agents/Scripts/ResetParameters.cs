@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace MLAgents
 {
+    // Q: ISerializationCallbackReceiver
+    //  * 实现序列化的Dictionary<string, float>
     [System.Serializable]
     public class ResetParameters : Dictionary<string, float>, ISerializationCallbackReceiver
     {
@@ -15,8 +17,12 @@ namespace MLAgents
             public float value;
         }
 
-        [SerializeField] private List<ResetParameter> resetParameters = new List<ResetParameter>();
+        [SerializeField] 
+        private List<ResetParameter> resetParameters = new List<ResetParameter>();
 
+        // 序列化前，
+        // 从字典中取出数据
+        // 进行序列化
         public void OnBeforeSerialize()
         {
             resetParameters.Clear();
@@ -29,14 +35,13 @@ namespace MLAgents
                 rp.value = pair.Value;
                 resetParameters.Add(rp);
             }
-
         }
 
+        // 从序列化中
+        // 进行还原
         public void OnAfterDeserialize()
         {
             this.Clear();
-
-
 
             for (int i = 0; i < resetParameters.Count; i++)
             {

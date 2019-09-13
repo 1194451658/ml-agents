@@ -2,16 +2,12 @@
 using UnityEngine;
 using MLAgents;
 
+// Q: 没有使用到的地方？！
 public class Ball3DDecision : Decision
 {
     public float rotationSpeed = 2f;
 
-    public override float[] Decide(
-        List<float> vectorObs,
-        List<Texture2D> visualObs,
-        float reward,
-        bool done,
-        List<float> memory)
+    public override float[] Decide(List<float> vectorObs, List<Texture2D> visualObs, float reward, bool done, List<float> memory)
     {
         if (brainParameters.vectorActionSpaceType == SpaceType.continuous)
         {
@@ -34,12 +30,7 @@ public class Ball3DDecision : Decision
         return new float[1] { 1f };
     }
 
-    public override List<float> MakeMemory(
-        List<float> vectorObs,
-        List<Texture2D> visualObs,
-        float reward,
-        bool done,
-        List<float> memory)
+    public override List<float> MakeMemory(List<float> vectorObs, List<Texture2D> visualObs, float reward, bool done, List<float> memory)
     {
         return new List<float>();
     }

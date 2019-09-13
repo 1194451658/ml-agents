@@ -10,25 +10,34 @@ public class Ball3DAgent : Agent
     private Rigidbody ballRb;
     private ResetParameters resetParams;
 
+    // 初始化Agent
     public override void InitializeAgent()
     {
         ballRb = ball.GetComponent<Rigidbody>();
         var academy = Object.FindObjectOfType<Academy>() as Academy;
+
+        // 获取Academy中设置的参数
         resetParams = academy.resetParameters;
         SetResetParameters();
     }
 
+    // 收集Agent的信息
     public override void CollectObservations()
     {
+        // 自己的偏移
         AddVectorObs(gameObject.transform.rotation.z);
         AddVectorObs(gameObject.transform.rotation.x);
+
+        // 小球的相对自己的位置
         AddVectorObs(ball.transform.position - gameObject.transform.position);
+
+        // 小球的速度
         AddVectorObs(ballRb.velocity);
     }
 
+    // Agent做出反应
     public override void AgentAction(float[] vectorAction, string textAction)
     {
-
         if (brain.brainParameters.vectorActionSpaceType == SpaceType.continuous)
         {
             var actionZ = 2f * Mathf.Clamp(vectorAction[0], -1f, 1f);
@@ -37,24 +46,33 @@ public class Ball3DAgent : Agent
             if ((gameObject.transform.rotation.z < 0.25f && actionZ > 0f) ||
                 (gameObject.transform.rotation.z > -0.25f && actionZ < 0f))
             {
+                // 设置自己的旋转
                 gameObject.transform.Rotate(new Vector3(0, 0, 1), actionZ);
             }
 
             if ((gameObject.transform.rotation.x < 0.25f && actionX > 0f) ||
                 (gameObject.transform.rotation.x > -0.25f && actionX < 0f))
             {
+                // 设置自己的旋转
                 gameObject.transform.Rotate(new Vector3(1, 0, 0), actionX);
             }
         }
+
+        // 胜负判别，和奖励回传
+        // 小球是否
+        // 离开中心区域过多
         if ((ball.transform.position.y - gameObject.transform.position.y) < -2f ||
             Mathf.Abs(ball.transform.position.x - gameObject.transform.position.x) > 3f ||
             Mathf.Abs(ball.transform.position.z - gameObject.transform.position.z) > 3f)
         {
             Done();
+
+            // 回传奖励
             SetReward(-1f);
         }
         else
         {
+            // 回传奖励
             SetReward(0.1f);
         }
     }
@@ -65,12 +83,19 @@ public class Ball3DAgent : Agent
         gameObject.transform.Rotate(new Vector3(1, 0, 0), Random.Range(-10f, 10f));
         gameObject.transform.Rotate(new Vector3(0, 0, 1), Random.Range(-10f, 10f));
         ballRb.velocity = new Vector3(0f, 0f, 0f);
-        ball.transform.position = new Vector3(Random.Range(-1.5f, 1.5f), 4f, Random.Range(-1.5f, 1.5f))
-                                      + gameObject.transform.position;
+        ball.transform.position = new Vector3(
+            Random.Range(-1.5f, 1.5f),
+            4f,
+            Random.Range(-1.5f, 1.5f)
+        ) + gameObject.transform.position;
+
         //Reset the parameters when the Agent is reset.
         SetResetParameters();
     }
 
+    // 根据Environment中定义的参数
+    // 设置小球质量
+    // 小球大小
     public void SetBall()
     {
         //Set the attributes of the ball by fetching the information from the academy
