@@ -13,12 +13,15 @@ public class BananaAcademy : Academy
 
     public int totalScore;
     public Text scoreText;
+
     public override void AcademyReset()
     {
+        // 清除所有香蕉
         ClearObjects(GameObject.FindGameObjectsWithTag("banana"));
         ClearObjects(GameObject.FindGameObjectsWithTag("badBanana"));
 
         agents = GameObject.FindGameObjectsWithTag("agent");
+
         listArea = FindObjectsOfType<BananaArea>();
         foreach (BananaArea ba in listArea)
         {

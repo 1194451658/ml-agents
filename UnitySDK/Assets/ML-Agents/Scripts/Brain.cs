@@ -16,10 +16,12 @@ namespace MLAgents
     /// </summary>
     public abstract class Brain : ScriptableObject
     {
-        [SerializeField] public BrainParameters brainParameters;
+        // 基本的Brain设置
+        // 输入大小、输出大小
+        [SerializeField] 
+        public BrainParameters brainParameters;
 
-        protected Dictionary<Agent, AgentInfo> agentInfos =
-            new Dictionary<Agent, AgentInfo>(1024);
+        protected Dictionary<Agent, AgentInfo> agentInfos = new Dictionary<Agent, AgentInfo>(1024);
 
         protected Batcher brainBatcher;
 
@@ -65,6 +67,8 @@ namespace MLAgents
         {
             if (!_isInitialized)
             {
+                // 获取Academy
+                // 监听Brain相关的事件
                 var academy = FindObjectOfType<Academy>();
                 if (academy)
                 {

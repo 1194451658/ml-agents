@@ -24,23 +24,19 @@ namespace MLAgents
         private const int NumAgents = 32;
 
         /// Keeps track of which brains have data to send on the current step
-        Dictionary<string, bool> m_hasData =
-            new Dictionary<string, bool>();
+        Dictionary<string, bool> m_hasData = new Dictionary<string, bool>();
 
         /// Keeps track of which brains queried the batcher on the current step
-        Dictionary<string, bool> m_hasQueried =
-            new Dictionary<string, bool>();
+        Dictionary<string, bool> m_hasQueried = new Dictionary<string, bool>();
 
         /// Keeps track of the agents of each brain on the current step
-        Dictionary<string, List<Agent>> m_currentAgents =
-            new Dictionary<string, List<Agent>>();
+        Dictionary<string, List<Agent>> m_currentAgents = new Dictionary<string, List<Agent>>();
 
         /// The Communicator of the batcher, sends a message at most once per step
         Communicator m_communicator;
 
         /// The current UnityRLOutput to be sent when all the brains queried the batcher
-        CommunicatorObjects.UnityRLOutput m_currentUnityRLOutput =
-            new CommunicatorObjects.UnityRLOutput();
+        CommunicatorObjects.UnityRLOutput m_currentUnityRLOutput = new CommunicatorObjects.UnityRLOutput();
 
         /// Keeps track of the done flag of the Academy
         bool m_academyDone;
@@ -84,7 +80,8 @@ namespace MLAgents
                     {
                         RlInitializationOutput = academyParameters
                     },
-                    out input);
+                    out input
+                );
             }
             catch
             {
@@ -152,6 +149,9 @@ namespace MLAgents
         /// Adds the brain to the list of brains which will be sending information to External.
         /// </summary>
         /// <param name="brainKey">Brain key.</param>
+
+        // brainKey: brain的名称
+        // 组合Brain和Agent的地方
         public void SubscribeBrain(string brainKey)
         {
             m_hasQueried[brainKey] = false;
@@ -159,7 +159,8 @@ namespace MLAgents
             m_currentAgents[brainKey] = new List<Agent>(NumAgents);
             m_currentUnityRLOutput.AgentInfos.Add(
                 brainKey,
-                new CommunicatorObjects.UnityRLOutput.Types.ListAgentInfoProto());
+                new CommunicatorObjects.UnityRLOutput.Types.ListAgentInfoProto()
+            );
         }
 
         /// <summary>
@@ -171,8 +172,7 @@ namespace MLAgents
         /// </summary>
         /// <param name="brainKey">Brain key.</param>
         /// <param name="agentInfo">Agent info.</param>
-        public void SendBrainInfo(
-            string brainKey, Dictionary<Agent, AgentInfo> agentInfo)
+        public void SendBrainInfo(string brainKey, Dictionary<Agent, AgentInfo> agentInfo)
         {
             // If no communicator is initialized, the Batcher will not transmit
             // BrainInfo

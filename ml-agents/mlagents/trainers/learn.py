@@ -23,8 +23,9 @@ from mlagents.envs.base_unity_environment import BaseUnityEnvironment
 from mlagents.envs.subprocess_env_manager import SubprocessEnvManager
 
 
-def run_training(
-    sub_id: int, run_seed: int, run_options: Dict[str, Any], process_queue: Queue
+# Q: 这是什么语法？
+# 指定了参数的类型？返回类型？
+def run_training( sub_id: int, run_seed: int, run_options: Dict[str, Any], process_queue: Queue
 ) -> None:
     """
     Launches training session.
@@ -39,6 +40,8 @@ def run_training(
         if run_options["--docker-target-name"] != "None"
         else None
     )
+
+    # 从命令行中，取出参数
 
     # General parameters
     env_path = run_options["--env"] if run_options["--env"] != "None" else None
@@ -61,11 +64,14 @@ def run_training(
         run_options["--sampler"] if run_options["--sampler"] != "None" else None
     )
 
+    # Q: docker设置？
     # Recognize and use docker volume if one is passed as an argument
     if not docker_target_name:
+        # 如果没有设置docker
         model_path = "./models/{run_id}-{sub_id}".format(run_id=run_id, sub_id=sub_id)
         summaries_dir = "./summaries"
     else:
+        # 如果设置了docker
         trainer_config_path = "/{docker_target_name}/{trainer_config_path}".format(
             docker_target_name=docker_target_name,
             trainer_config_path=trainer_config_path,
@@ -82,6 +88,7 @@ def run_training(
             docker_target_name=docker_target_name
         )
 
+    # 加载yaml配置文件
     trainer_config = load_config(trainer_config_path)
     env_factory = create_environment_factory(
         env_path,
@@ -178,6 +185,7 @@ def try_create_meta_curriculum(
         return meta_curriculum
 
 
+# 和docker相关的处理
 def prepare_for_docker_run(docker_target_name, env_path):
     for f in glob.glob(
         "/{docker_target_name}/*".format(docker_target_name=docker_target_name)
@@ -200,8 +208,10 @@ def prepare_for_docker_run(docker_target_name, env_path):
     return env_path
 
 
+# 加载yaml配置文件
 def load_config(trainer_config_path: str) -> Dict[str, Any]:
     try:
+        # 加载，并解析yaml
         with open(trainer_config_path) as data_file:
             trainer_config = yaml.safe_load(data_file)
             return trainer_config
@@ -223,6 +233,8 @@ def create_environment_factory(
     seed: Optional[int],
     start_port: int,
 ) -> Callable[[int], BaseUnityEnvironment]:
+
+    # 去除，文件后缀名
     if env_path is not None:
         # Strip out executable extensions if passed
         env_path = (
@@ -232,6 +244,8 @@ def create_environment_factory(
             .replace(".x86_64", "")
             .replace(".x86", "")
         )
+
+    # 和docker相关的处理
     docker_training = docker_target_name is not None
     if docker_training and env_path is not None:
         """
@@ -250,6 +264,8 @@ def create_environment_factory(
         env_seed = seed
         if not env_seed:
             env_seed = seed_pool[worker_id % len(seed_pool)]
+
+        # 创建UnityEnvironment
         return UnityEnvironment(
             file_name=env_path,
             worker_id=worker_id,
@@ -312,16 +328,24 @@ def main():
                                   [default: False].
     """
 
+    # 处理命令行的库
     options = docopt(_USAGE)
+
     trainer_logger = logging.getLogger("mlagents.trainers")
     env_logger = logging.getLogger("mlagents.envs")
+
+    # 打印命令函参数
     trainer_logger.info(options)
+
     if options["--debug"]:
         trainer_logger.setLevel("DEBUG")
         env_logger.setLevel("DEBUG")
+
     num_runs = int(options["--num-runs"])
     seed = int(options["--seed"])
 
+    # 在Editor中训练的时候，
+    # 不能够启动多个
     if options["--env"] == "None" and num_runs > 1:
         raise TrainerError(
             "It is not possible to launch more than one concurrent training session "

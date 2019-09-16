@@ -16,6 +16,8 @@ namespace MLAgents
     /// blackAndWhite defines whether or not the image is grayscale.
     /// </summary>
     [System.Serializable]
+
+    // 视觉图片大小
     public struct Resolution
     {
         public int width;
@@ -24,6 +26,7 @@ namespace MLAgents
         public int height;
 
         /**< \brief The height of the observation in pixels */
+        // 是否是，灰度图
         public bool blackAndWhite;
         /**< \brief If true, the image will be in black and white. 
          * If false, it will be in colors RGB */
@@ -36,47 +39,51 @@ namespace MLAgents
     [System.Serializable]
     public class BrainParameters
     {
-        public int vectorObservationSize = 1;
+        // 输入大小
         /**< \brief If continuous : The length of the float vector that represents 
          * the state
          * <br> If discrete : The number of possible values the state can take*/
+        public int vectorObservationSize = 1;
 
-        [Range(1, 50)] public int numStackedVectorObservations = 1;
 
-        public int[] vectorActionSize = new int[1]{1};
+        // Q: ???
+        [Range(1, 50)] 
+        public int numStackedVectorObservations = 1;
+
         /**< \brief If continuous : The length of the float vector that represents
          * the action
          * <br> If discrete : The number of possible values the action can take*/
+        public int[] vectorActionSize = new int[1]{1};
 
         public Resolution[] cameraResolutions;
+
         /**<\brief  The list of observation resolutions for the brain */
-
         public string[] vectorActionDescriptions;
-        /**< \brief The list of strings describing what the actions correpond to */
 
+        /**< \brief The list of strings describing what the actions correpond to */
         public SpaceType vectorActionSpaceType = SpaceType.discrete;
+
         /**< \brief Defines if the action is discrete or continuous */
-        
         /// <summary>
         /// Converts a Brain into to a Protobuff BrainInfoProto so it can be sent
         /// </summary>
         /// <returns>The BrainInfoProto generated.</returns>
         /// <param name="name">The name of the brain.</param>
         /// <param name="isTraining">Whether or not the Brain is training.</param>
-        public CommunicatorObjects.BrainParametersProto 
-            ToProto(string name, bool isTraining)
+        public CommunicatorObjects.BrainParametersProto ToProto(string name, bool isTraining)
         {
             var brainParametersProto = new CommunicatorObjects.BrainParametersProto
             {
                 VectorObservationSize = vectorObservationSize,
                 NumStackedVectorObservations = numStackedVectorObservations,
                 VectorActionSize = {vectorActionSize},
-                VectorActionSpaceType =
-                    (CommunicatorObjects.SpaceTypeProto)vectorActionSpaceType,
+                VectorActionSpaceType = (CommunicatorObjects.SpaceTypeProto)vectorActionSpaceType,
                 BrainName = name,
                 IsTraining = isTraining
             };
+
             brainParametersProto.VectorActionDescriptions.AddRange(vectorActionDescriptions);
+
             foreach (Resolution res in cameraResolutions)
             {
                 brainParametersProto.CameraResolutions.Add(

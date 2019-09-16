@@ -313,6 +313,7 @@ namespace MLAgents
             // 设置Brain是Controlled
             foreach (LearningBrain brain in controlledBrains)
             {
+                // 标记_isControlled = true;
                 brain.SetToControlledExternally();
             }
 
@@ -350,7 +351,8 @@ namespace MLAgents
             // 创建Batcher
             brainBatcher = new Batcher(communicator);
 
-            // Brain设置Batcher
+            // Brain设置到Batcher
+            // Batcher，是用来，连接Brain和Agent的地方
             foreach (var trainingBrain in exposedBrains)
             {
                 trainingBrain.SetBatcher(brainBatcher);

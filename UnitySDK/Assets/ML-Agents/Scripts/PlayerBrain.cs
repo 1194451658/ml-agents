@@ -63,9 +63,14 @@ namespace MLAgents
         {
             if (brainParameters.vectorActionSpaceType == SpaceType.continuous)
             {
+                // 连续Action
+                // 遍历此大脑的所有Agent
                 foreach (Agent agent in agentInfos.Keys)
                 {
+                    // 创建Action
                     var action = new float[brainParameters.vectorActionSize[0]];
+
+                    // 检测key输入
                     foreach (KeyContinuousPlayerAction cha in keyContinuousPlayerActions)
                     {
                         if (Input.GetKey(cha.key))
@@ -73,6 +78,9 @@ namespace MLAgents
                             action[cha.index] = cha.value;
                         }
                     }
+
+                    // 检测轴输入
+                    // 有scale设置
                     foreach (AxisContinuousPlayerAction axisAction in axisContinuousPlayerActions)
                     {
                         var axisValue = Input.GetAxis(axisAction.axis);
@@ -87,6 +95,7 @@ namespace MLAgents
             }
             else
             {
+                // 离散Action
                 foreach (Agent agent in agentInfos.Keys)
                 {
                     var action = new float[brainParameters.vectorActionSize.Length];

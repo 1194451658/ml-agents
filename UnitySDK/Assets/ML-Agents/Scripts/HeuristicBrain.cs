@@ -20,8 +20,10 @@ namespace MLAgents
         [SerializeField]
         [HideInInspector]
         public Decision decision;
+
 #if UNITY_EDITOR
         [HideInInspector]
+        // Q: Monoscript如何使用？！
         public MonoScript decisionScript;
 #endif
         [SerializeField]
@@ -45,6 +47,8 @@ namespace MLAgents
         /// <inheritdoc/>
         protected override void Initialize()
         {
+            // 根据名称
+            // 创建Decision实例
             if ((c_decision != null) && decision == null)
             {
                 decision = CreateInstance(c_decision) as Decision;
@@ -60,24 +64,30 @@ namespace MLAgents
                 throw new UnityAgentsException(
                     "The Brain is set to Heuristic, but no decision script attached to it");
             }
+
             foreach (Agent agent in agentInfos.Keys)
             {
-                agent.UpdateVectorAction(decision.Decide(
-                    agentInfos[agent].stackedVectorObservation,
-                    agentInfos[agent].visualObservations,
-                    agentInfos[agent].reward,
-                    agentInfos[agent].done,
-                    agentInfos[agent].memories));
+                agent.UpdateVectorAction(
+                    decision.Decide(
+                        agentInfos[agent].stackedVectorObservation,
+                        agentInfos[agent].visualObservations,
+                        agentInfos[agent].reward,
+                        agentInfos[agent].done,
+                        agentInfos[agent].memories)
+                    );
 
             }
+
             foreach (Agent agent in agentInfos.Keys)
             {
-                agent.UpdateMemoriesAction(decision.MakeMemory(
-                    agentInfos[agent].stackedVectorObservation,
-                    agentInfos[agent].visualObservations,
-                    agentInfos[agent].reward,
-                    agentInfos[agent].done,
-                    agentInfos[agent].memories));
+                agent.UpdateMemoriesAction(
+                    decision.MakeMemory(
+                        agentInfos[agent].stackedVectorObservation,
+                        agentInfos[agent].visualObservations,
+                        agentInfos[agent].reward,
+                        agentInfos[agent].done,
+                        agentInfos[agent].memories)
+                    );
             }
             agentInfos.Clear();
         }

@@ -33,6 +33,8 @@ namespace MLAgents
         /// <summary>
         /// Most recent text observation.
         /// </summary>
+
+        // Q: 还能观测Text?
         public string textObservation;
 
         /// <summary>
@@ -43,6 +45,8 @@ namespace MLAgents
         /// <summary>
         /// Keeps track of the last text action taken by the Brain.
         /// </summary>
+
+        // Q: 什么是text action
         public string storedTextActions;
 
         /// <summary>
@@ -91,6 +95,8 @@ namespace MLAgents
         /// </summary>
         /// <returns>The protobuf verison of the AgentInfo.</returns>
         /// <param name="info">The AgentInfo to convert.</param>
+
+        // 转换到AgentInfo结构
         public CommunicatorObjects.AgentInfoProto ToProto()
         {
             var agentInfoProto = new CommunicatorObjects.AgentInfoProto
@@ -105,6 +111,7 @@ namespace MLAgents
                 Id = id,
                 CustomObservation = customObservation
             };
+
             if (memories != null)
             {
                 agentInfoProto.Memories.Add(memories);
@@ -121,6 +128,7 @@ namespace MLAgents
                     ByteString.CopyFrom(obs.EncodeToPNG())
                 );
             }
+
             return agentInfoProto;
         }
 
@@ -272,12 +280,15 @@ namespace MLAgents
         /// <summary>
         /// Agent parameters specified within the Editor via AgentEditor.
         /// </summary>
+
+        // Agent参数
         [HideInInspector] public AgentParameters agentParameters;
 
         /// Current Agent information (message sent to Brain).
         AgentInfo info;
 
         /// Current Agent action (message sent from Brain).
+        // Agent动作
         AgentAction action;
 
         /// Represents the reward the agent accumulated during the current step.
@@ -286,6 +297,8 @@ namespace MLAgents
         /// action that we wish to reinforce/reward, and set to a negative value
         /// when the agent performs a "bad" action that we wish to punish/deter.
         /// Additionally, the magnitude of the reward should not exceed 1.0
+
+        // 不应该超过1
         float reward;
 
         /// Keeps track of the cumulative reward in this episode.
@@ -295,6 +308,7 @@ namespace MLAgents
         bool requestAction;
 
         /// Whether or not the agent requests a decision.
+        // Q: Action和Decision还不一样？！
         bool requestDecision;
 
         /// Whether or not the agent has completed the episode. This may be due
@@ -329,6 +343,8 @@ namespace MLAgents
         /// <summary>
         /// Demonstration recorder.
         /// </summary>
+
+        // 模仿学习？！
         private DemonstrationRecorder recorder;
 
         /// Monobehavior function that is called when the attached GameObject
@@ -379,6 +395,8 @@ namespace MLAgents
 
         /// Monobehavior function that is called when the attached GameObject
         /// becomes disabled or inactive.
+
+        // 移除监听Academy
         void OnDisable()
         {
             Academy academy = Object.FindObjectOfType<Academy>() as Academy;
@@ -539,6 +557,8 @@ namespace MLAgents
             {
                 if (param.vectorActionSpaceType == SpaceType.continuous)
                 {
+                    // 连续性的
+                    // 只有一个数？
                     action.vectorActions = new float[param.vectorActionSize[0]];
                     info.storedVectorActions = new float[param.vectorActionSize[0]];
                 }
@@ -554,15 +574,9 @@ namespace MLAgents
             action.textActions = "";
             info.memories = new List<float>();
             action.memories = new List<float>();
-            info.vectorObservation =
-                new List<float>(param.vectorObservationSize);
-            info.stackedVectorObservation =
-                new List<float>(param.vectorObservationSize
-                                * brain.brainParameters.numStackedVectorObservations);
-            info.stackedVectorObservation.AddRange(
-                new float[param.vectorObservationSize
-                          * param.numStackedVectorObservations]);
-
+            info.vectorObservation = new List<float>(param.vectorObservationSize);
+            info.stackedVectorObservation = new List<float>(param.vectorObservationSize * brain.brainParameters.numStackedVectorObservations);
+            info.stackedVectorObservation.AddRange(new float[param.vectorObservationSize * param.numStackedVectorObservations]);
             info.visualObservations = new List<Texture2D>();
             info.customObservation = null;
         }

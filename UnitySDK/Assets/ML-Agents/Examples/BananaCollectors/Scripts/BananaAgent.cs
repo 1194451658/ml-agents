@@ -36,7 +36,9 @@ public class BananaAgent : Agent
     {
         base.InitializeAgent();
         agentRb = GetComponent<Rigidbody>();
+
         Monitor.verticalOffset = 1f;
+
         myArea = area.GetComponent<BananaArea>();
         rayPer = GetComponent<RayPerception3D>();
         myAcademy = FindObjectOfType<BananaAcademy>();
@@ -51,7 +53,9 @@ public class BananaAgent : Agent
             float rayDistance = 50f;
             float[] rayAngles = { 20f, 90f, 160f, 45f, 135f, 70f, 110f };
             string[] detectableObjects = { "banana", "agent", "wall", "badBanana", "frozenAgent" };
+
             AddVectorObs(rayPer.Perceive(rayDistance, rayAngles, detectableObjects, 0f, 0f));
+
             Vector3 localVelocity = transform.InverseTransformDirection(agentRb.velocity);
             AddVectorObs(localVelocity.x);
             AddVectorObs(localVelocity.z);
@@ -72,10 +76,13 @@ public class BananaAgent : Agent
     {
         shoot = false;
 
+        // 检查
+        // 是否解冻
         if (Time.time > frozenTime + 4f && frozen)
         {
             Unfreeze();
         }
+
         if (Time.time > effectTime + 0.5f)
         {
             if (poisioned)

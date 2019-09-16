@@ -28,7 +28,8 @@ namespace MLAgents
         /// <summary>
         /// Represents how high above the target the monitors will be.
         /// </summary>
-        [HideInInspector] static public float verticalOffset = 3f;
+        [HideInInspector] 
+        static public float verticalOffset = 3f;
 
         static bool isInstantiated;
         static GameObject canvas;
@@ -77,11 +78,7 @@ namespace MLAgents
         /// </param>
         /// <param name="camera">Camera used to calculate GUI position relative to
         /// the target. If null, `Camera.main` will be used.</param>
-        public static void Log(
-            string key,
-            string value,
-            Transform target = null,
-            Camera camera = null)
+        public static void Log( string key, string value, Transform target = null, Camera camera = null)
         {
             if (!isInstantiated)
             {
@@ -147,12 +144,7 @@ namespace MLAgents
         /// </param>
         /// <param name="camera">Camera used to calculate GUI position relative to
         /// the target. If null, `Camera.main` will be used.</param>
-        public static void Log(
-            string key,
-            float value,
-            Transform target = null,
-            Camera camera = null)
-        {
+        public static void Log( string key, float value, Transform target = null, Camera camera = null) {
             if (!isInstantiated)
             {
                 InstantiateCanvas();
@@ -207,13 +199,7 @@ namespace MLAgents
         /// </param>
         /// <param name="camera">Camera used to calculate GUI position relative to
         /// the target. If null, `Camera.main` will be used.</param>
-        public static void Log(
-            string key,
-            float[] value,
-            Transform target = null,
-            DisplayType displayType = DisplayType.INDEPENDENT,
-            Camera camera = null
-        )
+        public static void Log( string key, float[] value, Transform target = null, DisplayType displayType = DisplayType.INDEPENDENT, Camera camera = null)
         {
             if (!isInstantiated)
             {

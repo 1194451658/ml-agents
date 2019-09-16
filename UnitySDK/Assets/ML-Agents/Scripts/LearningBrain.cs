@@ -29,14 +29,19 @@ namespace MLAgents
     [CreateAssetMenu(fileName = "NewLearningBrain", menuName = "ML-Agents/Learning Brain")]
     public class LearningBrain : Brain
     {
+        // Baracude中定义
+        // 没有开放源代码？
         private ITensorAllocator _tensorAllocator;
         private TensorGenerator _tensorGenerator;
         private TensorApplier _tensorApplier;
+
 #if ENABLE_TENSORFLOW
+        // Q: 传给TensorFlowSharp进行推断？！
         public TextAsset model;
         private ModelParamLoader _modelParamLoader;
         private TFSharpInferenceEngine _engine;
 #else 
+        // 使用Barracuda进行推断
         public NNModel model;
         private Model _barracudaModel;
         private IWorker _engine;
@@ -48,6 +53,7 @@ namespace MLAgents
         
         [Tooltip("Inference execution device. CPU is the fastest option for most of ML Agents models. " +
                  "(This field is not applicable for training).")]
+        // Q: 为什么训练时候不行？
         public InferenceDevice inferenceDevice = InferenceDevice.CPU;
         
         private IReadOnlyList<TensorProxy> _inferenceInputs;
@@ -154,11 +160,15 @@ namespace MLAgents
         /// <inheritdoc />
         protected override void DecideAction()
         {
+            // 如果是，受控制的
+            // 不会进行推断
+            // 基类中，会传给Batcher，并会传给Tensorflow
             if (_isControlled)
             {
                 agentInfos.Clear();
                 return;
             }
+
             var currentBatchSize = agentInfos.Count();
             if (currentBatchSize == 0)
             {
@@ -187,6 +197,7 @@ namespace MLAgents
             // Update the outputs
             _tensorApplier.ApplyTensors(_inferenceOutputs, agentInfos);
 #else
+            // Q: 这个$符号是？
             if (_engine == null)
             {
                 Debug.LogError($"No model was present for the Brain {name}.");

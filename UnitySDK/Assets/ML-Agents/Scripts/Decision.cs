@@ -26,13 +26,7 @@ namespace MLAgents
         /// The memories stored from the previous step with 
         /// <see cref="MakeMemory(List{float}, List{Texture2D}, float, bool, List{float})"/>
         /// </param>
-        public abstract float[] Decide(
-            List<float>
-                vectorObs,
-            List<Texture2D> visualObs,
-            float reward,
-            bool done,
-            List<float> memory);
+        public abstract float[] Decide(List<float> vectorObs, List<Texture2D> visualObs, float reward, bool done, List<float> memory);
 
         /// <summary>
         /// Defines the logic for creating the memory vector for the Agent.
@@ -45,11 +39,6 @@ namespace MLAgents
         /// <param name="memory">
         /// The memories stored from the previous call to this method.
         /// </param>
-        public abstract List<float> MakeMemory(
-            List<float> vectorObs,
-            List<Texture2D> visualObs,
-            float reward,
-            bool done,
-            List<float> memory);
+        public abstract List<float> MakeMemory(List<float> vectorObs, List<Texture2D> visualObs, float reward, bool done, List<float> memory);
     }
 }
